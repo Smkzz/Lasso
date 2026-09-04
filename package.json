@@ -1,0 +1,24 @@
+{
+  "name": "lasso-webmcp",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node serve.mjs",
+    "build:smoke": "python scripts/build_smoke.py",
+    "lint": "node --check serve.mjs && node --check src/core.js && node --check src/scopeCompiler.js && node --check src/webmcp.js && node --check src/app.js && node --check tests/core.test.mjs && node --check tests/performance_smoke.mjs && node --check tests/fuzz_smoke.mjs && python -m py_compile scripts/build_smoke.py tests/package_check.py tests/source_quality.py tests/http_security.py tests/browser_e2e.py",
+    "test": "node tests/core.test.mjs",
+    "test:fuzz": "node tests/fuzz_smoke.mjs",
+    "test:performance": "node tests/performance_smoke.mjs",
+    "test:quality": "python tests/source_quality.py",
+    "test:http": "python tests/http_security.py",
+    "test:browser": "python tests/browser_e2e.py",
+    "check": "npm run lint && npm test && npm run test:fuzz && npm run test:performance && npm run test:quality && python tests/package_check.py && npm run test:http && npm run build:smoke",
+    "check:browser": "npm run build:smoke && npm run test:browser",
+    "check:release": "npm run check && npm run check:browser"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

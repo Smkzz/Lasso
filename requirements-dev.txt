@@ -1,0 +1,4 @@
+# Test-only dependencies. The production runtime has no third-party dependencies.
+requests==2.32.5
+tinycss2==1.5.1
+websocket-client==1.9.0

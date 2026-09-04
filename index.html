@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#071019" />
+  <meta name="description" content="LASSO compiles a human's visual selection into a typed, ephemeral WebMCP capability contract." />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'" />
+  <title>LASSO — The map is the prompt</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">L</span>
+      <div><strong>LASSO</strong><small>Draw what your agent can touch.</small></div>
+    </div>
+    <div class="top-actions">
+      <span id="mcpStatus" class="status-pill" role="status">WebMCP · detecting</span>
+      <button id="resetBtn" class="ghost" type="button">Reset scenario</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="map-panel card">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">HELSINKI · EAST DISPATCH · 16:00</div>
+          <h1>Recover the disruption without losing human control</h1>
+        </div>
+        <div class="metric-strip" aria-label="Dispatch performance">
+          <div><strong id="lateMetric">6</strong><span>late</span></div>
+          <div><strong id="onTimeMetric">75%</strong><span>on time</span></div>
+        </div>
+      </div>
+
+      <div class="task-strip" aria-label="Three-step judge flow">
+        <div id="stepScope" class="task-step active"><b>1</b><span><strong>Draw scope</strong><small>Select deliveries and drivers.</small></span></div>
+        <div id="stepAsk" class="task-step"><b>2</b><span><strong>Ask the agent</strong><small>“Recover as many late deliveries as possible without overtime.”</small></span></div>
+        <div id="stepReview" class="task-step"><b>3</b><span><strong>Review authority</strong><small>Approve expansion or one exact plan.</small></span></div>
+      </div>
+
+      <div class="map-wrap">
+        <svg id="dispatchMap" viewBox="0 0 1000 620" role="img" aria-label="Dispatch map. Draw a freehand lasso to define the agent's working scope.">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,.025)" stroke-width="1"/></pattern>
+            <filter id="glow"><feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <marker id="arrowCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#5eead4"/></marker>
+            <marker id="arrowAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f7b955"/></marker>
+          </defs>
+          <rect width="1000" height="620" fill="url(#grid)" />
+          <g id="roads" class="roads"></g>
+          <g id="liveRoutes" class="routes live-routes"></g>
+          <g id="proposalRoutes" class="routes proposal-routes"></g>
+          <g id="deliveries"></g>
+          <g id="drivers"></g>
+          <path id="lassoPath" class="lasso-path" d="" />
+          <path id="scopeLink" class="scope-link" d="" />
+        </svg>
+        <div class="map-hint"><span class="mouse-icon" aria-hidden="true">⌁</span><strong>Draw a lasso</strong> around the deliveries and drivers the agent may reason about.</div>
+        <div id="scopeBadge" class="scope-badge hidden"></div>
+        <div class="legend" aria-label="Map legend">
+          <span><i class="route-key live"></i>Live route</span>
+          <span><i class="route-key proposal"></i>Agent proposal</span>
+          <span><i class="dot late"></i>Late</span>
+          <span><i class="driver-key"></i>Driver</span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="card contract-card">
+        <div class="card-title-row">
+          <div><div class="eyebrow">HUMAN → AGENT CONTRACT</div><h2 id="scopeTitle">No active scope</h2></div>
+          <span id="scopeRevision" class="rev">G1 · R1</span>
+        </div>
+        <p id="scopeCopy" class="muted">Draw around the part of the live board the agent may understand in detail. Your gesture becomes its typed capability contract.</p>
+        <div id="scopeStats" class="scope-stats empty"><span>0 deliveries</span><span>0 drivers</span></div>
+
+        <div class="constraint-block">
+          <div class="label">Human constraints</div>
+          <div class="constraint-controls">
+            <label class="constraint-chip"><input id="noOvertimeInput" type="checkbox" checked /><span>No overtime</span></label>
+            <label class="constraint-chip select-chip"><span>Max route changes</span><select id="maxRouteChangesSelect" aria-label="Maximum changed driver routes"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+          </div>
+          <small class="constraint-note">Changing either control invalidates the current contract and compiles a new revision.</small>
+        </div>
+
+        <div id="authorityList" class="authority-list">
+          <div><i></i><span>Board summary only</span></div>
+          <div class="blocked"><i></i><span>No detailed operational access</span></div>
+          <div class="blocked"><i></i><span>No live-route mutation</span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="label-row"><span class="label">WebMCP contract</span><button id="contractToggle" class="text-button" type="button" aria-expanded="false">Show technical proof</button></div>
+        <div id="contractHealth" class="contract-health starting">Waiting for host confirmation</div>
+        <div id="toolSummary" class="tool-summary">No confirmed tools yet</div>
+        <div id="contractProof" class="contract-proof hidden">
+          <div id="contractDiff" class="contract-diff"></div>
+          <details class="raw-contract">
+            <summary>Raw registered tool names</summary>
+            <div id="toolList" class="tool-list"></div>
+          </details>
+        </div>
+      </section>
+
+      <section id="expansionCard" class="card expansion-card hidden" aria-live="polite">
+        <div class="eyebrow amber">AGENT → HUMAN NEGOTIATION</div>
+        <h2>More authority requested</h2>
+        <p id="expansionReason"></p>
+        <div id="expansionImpact" class="impact"></div>
+        <div class="button-row"><button id="rejectExpansion" class="ghost grow" type="button">Keep boundary</button><button id="approveExpansion" class="primary grow" type="button">Include resource</button></div>
+      </section>
+
+      <section class="card plan-card">
+        <div class="card-title-row"><div><div class="eyebrow">AGENT PLAN</div><h2 id="planTitle">Waiting for agent</h2></div><span id="planStatus" class="status-tag neutral">No plan</span></div>
+        <div id="planEmpty" class="empty-state">The agent must author driver → delivery assignments. LASSO only validates them.</div>
+        <div id="planContent" class="hidden">
+          <div id="violations" class="violations hidden"></div>
+          <div class="proposal-score"><div><span>Late before</span><strong id="beforeLate">—</strong></div><span class="arrow">→</span><div><span>After</span><strong id="afterLate">—</strong></div></div>
+          <div class="mini-grid"><div><span>Changed routes</span><strong id="routeChanges">—</strong></div><div><span>Net distance</span><strong id="extraKm">—</strong></div><div><span>Overtime</span><strong id="overtime">—</strong></div></div>
+          <div id="assignmentList" class="assignment-list"></div>
+          <button id="authorizeBtn" class="primary full hidden" type="button">Authorize this exact verified plan</button>
+          <button id="revokeBtn" class="danger full hidden" type="button">Revoke execution authority</button>
+        </div>
+      </section>
+
+      <section class="card timeline-card">
+        <div class="label-row"><span class="label">Collaboration trace</span><span class="count" id="auditCount">0</span></div>
+        <div id="timeline" class="timeline"><div class="empty-state compact">Human and agent actions will appear here.</div></div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="bottom-bar">
+    <div><span class="signal-dot"></span><strong>Human gesture → ScopeCompiler → ephemeral WebMCP API</strong></div>
+    <div id="toast" class="toast" role="status" aria-live="polite">The map is the prompt. The boundary is the permission.</div>
+  </footer>
+</div>
+
+<div id="devTray" class="dev-tray hidden">
+  <strong>Local validation controls</strong>
+  <button id="devSelect" type="button">1 · Draw demo scope</button>
+  <button id="devInvalid" type="button">2 · Agent submits invalid plan</button>
+  <button id="devRequest" type="button">3 · Agent requests opportunity</button>
+  <button id="devValid" type="button">4 · Agent submits repaired plan</button>
+  <button id="devAuthorize" type="button">5 · Human authorizes exact plan</button>
+  <button id="devApply" type="button">6 · Agent applies plan</button>
+  <button id="devReplay" type="button">7 · Replay stale tool</button>
+</div>
+
+<script type="module" src="./src/app.js"></script>
+</body>
+</html>

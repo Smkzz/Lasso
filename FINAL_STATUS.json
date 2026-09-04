@@ -1,0 +1,54 @@
+{
+  "project": "LASSO",
+  "version": "0.3.0",
+  "generated_utc": "2026-09-04",
+  "verdict": "LASSO_V0_3_FINAL_SUBMISSION_READY",
+  "quality_scope": "Hackathon-grade practical hardening; not a production security certification, formal verification, external penetration test, performance certification, or accessibility certification.",
+  "native_webmcp": {
+    "host": "Codex In-app Browser",
+    "model": "WebMCP-supported model; exact identifier not exposed by host",
+    "document_model_context": "PRESENT",
+    "full_mission": "PASS",
+    "initial_scope": "6 deliveries, 2 drivers",
+    "contract_refresh": "R2/C4 -> R3/C5",
+    "late_before": 6,
+    "late_after": 1,
+    "route_changes": 3,
+    "overtime_minutes": 0,
+    "out_of_scope_mutations": 0,
+    "protected_commitment_mutations": 0,
+    "duplicate_delivery_owners": 0,
+    "stale_replay": "REJECTED",
+    "live_mutation_after_replay": 0,
+    "console_errors": 0
+  },
+  "validation": {
+    "core_invariants": "153/153 PASS",
+    "fuzz_iterations": 5000,
+    "fuzz_security_checks": "PASS",
+    "source_quality_checks": "59/59 PASS",
+    "performance_checks": "4/4 PASS",
+    "package_checks": "82/82 PASS",
+    "http_security_checks": "25/25 PASS",
+    "browser_e2e": "PASS",
+    "page_errors": 0,
+    "final_late_count": 1
+  },
+  "release_blockers": [],
+  "known_limitations": [
+    "Exact WebMCP host model identifier was not exposed.",
+    "No browser-attested human identity, public deployment, customer validation, or production dispatch integration is claimed."
+  ],
+  "validated_product_sha256": {
+    "package.json": "89d9380361ebbe13b03e2952c4b1929d0259ebfc828d49c6e7dc70c702f5f0ca",
+    "index.html": "ebf31c2eecde467e43b93f824f86a51645dc7c7024729e898d9e924f3349efad",
+    "styles.css": "a2035d28398347920c25a01b7e5f5e4d0b87655d738f10401ceab8990b2290cb",
+    "src/app.js": "cdf3b7d32ce3df69c84aef3dd92d10086c19afe0c0176bfc425267f39c90f563",
+    "src/core.js": "368e252fb6f86fa358bb9c650271bfc21069351f8b2f90d4b386970a5708a13d",
+    "src/scopeCompiler.js": "1373105940b1937de33ade21ffe9855ed622764c6c881bf02f68f8d3b539b95b",
+    "src/webmcp.js": "a99059cabcab177108e37e7832730b64c39df553553222557523a548ad3b355c",
+    "serve.mjs": "24a1685c8317a2a1ad975d05ea25fe90d16c96c2845bd29c04c3814432c38d50",
+    "tests/core.test.mjs": "036d425905979576b4561a460e8d434932c17528b5fab68b68eb01e7b79d9d65",
+    "tests/browser_e2e.py": "bd578672a31e1d6313ee6adef9aa344f0a2608d4049cea55ecdcbc62e8b9649"
+  }
+}
