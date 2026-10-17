@@ -479,7 +479,7 @@ export function evaluatePlan(state, assignments) {
       violations.push({ code: 'UNEXPECTED_ASSIGNMENT_PROPERTY', properties: unexpectedKeys.sort() });
     }
 
-    const driverId = String(assignment.driverId ?? '');
+    const driverId = typeof assignment.driverId === 'string' ? assignment.driverId : '';
     if (!driverId || driverId.length > MAX_IDENTIFIER_LENGTH) violations.push({ code: 'MALFORMED_DRIVER_ID' });
     if (rawDrivers.has(driverId)) violations.push({ code: 'DUPLICATE_DRIVER_ASSIGNMENT', driverId });
     rawDrivers.add(driverId);
@@ -494,7 +494,8 @@ export function evaluatePlan(state, assignments) {
         attempted: rawDeliveryIds.length,
       });
     }
-    const deliveryIds = rawDeliveryIds.slice(0, MAX_DELIVERIES_PER_ASSIGNMENT).map(String);
+    const deliveryIds = rawDeliveryIds.slice(0, MAX_DELIVERIES_PER_ASSIGNMENT)
+      .map((deliveryId) => typeof deliveryId === 'string' ? deliveryId : '');
     totalDeliveryReferences += deliveryIds.length;
     if (deliveryIds.length === 0) violations.push({ code: 'EMPTY_DRIVER_ASSIGNMENT', driverId });
     if (deliveryIds.some((deliveryId) => !deliveryId || deliveryId.length > MAX_IDENTIFIER_LENGTH)) {
@@ -850,7 +851,7 @@ export function createStore() {
       if (authorization.scopeRevision !== state.scopeRevision || authorization.workspaceGeneration !== state.workspaceGeneration) {
         return { status: 'rejected', code: 'AUTHORIZATION_STALE' };
       }
-      if (Number(epoch) !== authorization.actuationEpoch || Number(epoch) !== state.actuationEpoch) {
+      if (!Number.isInteger(epoch) || epoch !== authorization.actuationEpoch || epoch !== state.actuationEpoch) {
         return { status: 'rejected', code: 'ACTUATION_EPOCH_MISMATCH' };
       }
       if (authorization.exactEnvelope !== authorizationEnvelope(state, plan.assignments)) {

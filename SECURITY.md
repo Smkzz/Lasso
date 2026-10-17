@@ -16,6 +16,7 @@ LASSO is a static competition prototype. It has no accounts, backend, persistenc
 - Consequential execution requires one exact, current, unexpired authorization. It is bound to the full live-state envelope and is single-use.
 - Contract refresh waits for in-flight calls to settle. Partial host registration fails closed with zero active tools, and failed registration names are never reused.
 - The included server exposes an explicit runtime-asset allow-list, accepts only GET and HEAD, rejects traversal and symlink escape, and emits restrictive browser security headers.
+- The server denies framing of the human authorization page with CSP `frame-ancestors 'none'` and `X-Frame-Options: DENY`. Static deployments must preserve these response headers; an HTML CSP meta tag cannot enforce `frame-ancestors`.
 
 ## Deployment notes
 

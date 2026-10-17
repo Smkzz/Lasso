@@ -42,10 +42,12 @@ const contentSecurityPolicy = [
   "base-uri 'none'",
   "form-action 'none'",
   "frame-src 'none'",
+  "frame-ancestors 'none'",
 ].join('; ');
 
 const securityHeaders = Object.freeze({
   'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'no-referrer',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
   'Cross-Origin-Resource-Policy': 'same-origin',

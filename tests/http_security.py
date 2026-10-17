@@ -68,6 +68,8 @@ try:
     check('HTML content type is correct', headers.get('content-type', '').startswith('text/html'))
     check('HTML is never cached', headers.get('cache-control') == 'no-store')
     check('CSP is emitted', "object-src 'none'" in headers.get('content-security-policy', ''))
+    check('human authorization page cannot be framed', "frame-ancestors 'none'" in headers.get('content-security-policy', ''))
+    check('legacy browsers cannot frame the authorization page', headers.get('x-frame-options') == 'DENY')
     check('MIME sniffing is disabled', headers.get('x-content-type-options') == 'nosniff')
     check('referrer is suppressed', headers.get('referrer-policy') == 'no-referrer')
     check('sensitive permissions are disabled', 'camera=()' in headers.get('permissions-policy', ''))
