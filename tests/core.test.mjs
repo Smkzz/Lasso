@@ -216,6 +216,35 @@ await check('apply tool carries the current WebMCP consequential annotation', ()
 }));
 
 const applyTool = findTool('apply_plan', bridge);
+await check('resource IDs require strings when schema validation is bypassed', () => {
+  const isolatedStore = createStore();
+  isolatedStore.setSelection(['D07'], ['AINO-02'], 'identifier_validation');
+  for (const assignments of [
+    [{ driverId: ['AINO-02'], deliveryIds: ['D07'] }],
+    [{ driverId: 'AINO-02', deliveryIds: [['D07']] }],
+  ]) {
+    const before = structuredClone(isolatedStore.state.liveAssignments);
+    const result = evaluatePlan(isolatedStore.state, assignments);
+    assert.equal(result.valid, false);
+    assert.ok(result.violations.some(({ code }) => code.startsWith('MALFORMED_')));
+    assert.deepEqual(isolatedStore.state.liveAssignments, before);
+  }
+});
+await check('actuation epoch is an integer even when schema validation is bypassed', () => {
+  for (const asInvalidValue of [(epoch) => String(epoch), (epoch) => [epoch], () => null, () => true]) {
+    const isolatedStore = createStore();
+    isolatedStore.setSelection(['D07'], ['AINO-02'], 'epoch_validation');
+    const plan = evaluatePlan(isolatedStore.state, [{ driverId: 'AINO-02', deliveryIds: ['D07'] }]);
+    isolatedStore.setEvaluation(plan);
+    assert.equal(isolatedStore.authorizeExactPlan(plan.planId), true);
+    const epoch = isolatedStore.state.authorization.actuationEpoch;
+    const before = structuredClone(isolatedStore.state.liveAssignments);
+    assert.equal(isolatedStore.applyVerifiedPlan(plan.planId, asInvalidValue(epoch)).code, 'ACTUATION_EPOCH_MISMATCH');
+    assert.deepEqual(isolatedStore.state.liveAssignments, before);
+    assert.equal(isolatedStore.state.authorization.consumed, false);
+    assert.equal(isolatedStore.applyVerifiedPlan(plan.planId, epoch).status, 'applied');
+  }
+});
 const applyArgs = {
   ...contractArgs(store.state),
   planId: valid.planId,
